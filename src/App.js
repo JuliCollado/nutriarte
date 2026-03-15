@@ -12,6 +12,7 @@ export default function App() {
   const [tabAnterior, setTabAnterior] = useState('recetas')
   const [listaCompras, setListaCompras] = useState([])
   const [menuRecetas, setMenuRecetas] = useState([])
+  const [historial, setHistorial] = useState([])
 
   const agregarACompras = (ingredientes, recetaNombre) => {
     setListaCompras(prev => {
@@ -33,6 +34,14 @@ export default function App() {
     setMenuRecetas(prev => {
       if (prev.find(r => r.id === receta.id)) return prev
       return [...prev, receta]
+    })
+  }
+
+  const marcarRealizada = (receta) => {
+    setHistorial(prev => {
+      const yaExiste = prev.find(h => h.id === receta.id && h.fecha === new Date().toLocaleDateString('es-AR'))
+      if (yaExiste) return prev
+      return [{ ...receta, fecha: new Date().toLocaleDateString('es-AR') }, ...prev]
     })
   }
 
@@ -71,6 +80,7 @@ export default function App() {
             menuRecetas={menuRecetas}
             onVerReceta={verReceta}
             onRemoverDeMenu={removerDelMenu}
+            onMarcarRealizada={marcarRealizada}
           />
         )}
         {tab === 'compras' && (
@@ -80,7 +90,7 @@ export default function App() {
             onRemoverReceta={removerReceta}
           />
         )}
-        {tab === 'perfil' && <Perfil />}
+        {tab === 'perfil' && <Perfil historial={historial} onVerReceta={verReceta} />}
       </div>
 
       <nav className="nav-bottom">

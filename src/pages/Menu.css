@@ -119,3 +119,109 @@
   color: var(--crema-dark);
   flex-shrink: 0;
 }
+
+/* KPI REMOJO */
+.kpi-remojo {
+  background: var(--amarillo-bg);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.kpi-remojo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #7A5A1A;
+  margin-bottom: 12px;
+}
+
+.kpi-remojo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.6);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+
+.kpi-remojo-item:last-child { margin-bottom: 0; }
+
+.remojo-ingrediente {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5A3A0A;
+  text-transform: capitalize;
+}
+
+.remojo-detalle {
+  font-size: 13px;
+  color: #7A5A1A;
+  font-weight: 500;
+}
+
+/* KPI TIEMPO */
+.kpi-tiempo {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kpi-tiempo-icon { font-size: 24px; }
+
+.kpi-tiempo > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-tiempo-label {
+  font-size: 11px;
+  color: var(--gris);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.kpi-tiempo-valor {
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Fraunces', serif;
+  color: var(--negro);
+}
+
+/* CHECK DE REALIZADA */
+.menu-check {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid var(--crema-dark);
+  background: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  transition: all 0.2s;
+}
+
+.menu-check.checked {
+  background: var(--verde-dark);
+  border-color: var(--verde-dark);
+}
+
+.menu-item.realizada {
+  opacity: 0.45;
+}
+
+.menu-item.realizada .menu-item-nombre {
+  text-decoration: line-through;
+}

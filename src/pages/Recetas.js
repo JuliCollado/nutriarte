@@ -102,13 +102,13 @@ export default function Recetas({ onVerReceta }) {
         {/* CHIPS RÁPIDOS */}
         <div className="chips-row">
           <button
-            className={`chip ${filtros.vegano ? 'chip-active' : ''}`}
-            onClick={() => setFiltros(f => ({ ...f, vegano: !f.vegano }))}
-          >🌱 Vegano</button>
+            className={`chip ${filtros.dulzor === 'salado' ? 'chip-active' : ''}`}
+            onClick={() => setFiltros(f => ({ ...f, dulzor: f.dulzor === 'salado' ? null : 'salado' }))}
+          >🧂 Salado</button>
           <button
-            className={`chip ${filtros.sinTacc ? 'chip-active' : ''}`}
-            onClick={() => setFiltros(f => ({ ...f, sinTacc: !f.sinTacc }))}
-          >🌾 Sin TACC</button>
+            className={`chip ${filtros.dulzor === 'dulce' ? 'chip-active' : ''}`}
+            onClick={() => setFiltros(f => ({ ...f, dulzor: f.dulzor === 'dulce' ? null : 'dulce' }))}
+          >🍯 Dulce</button>
           <button
             className={`chip ${filtros.sinRemojo ? 'chip-active' : ''}`}
             onClick={() => setFiltros(f => ({ ...f, sinRemojo: !f.sinRemojo }))}

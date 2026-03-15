@@ -40,6 +40,23 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
     ? receta.pasos.split(/\d+\.\s+/).filter(p => p.trim())
     : []
 
+  const handleAgregarAmbos = () => {
+    // Agregar al menú
+    onAgregarMenu(receta)
+    setEnMenu(true)
+    // Agregar a compras
+    const items = ingredientes.map(i => ({
+      ingrediente_id: i.ingredientes.id,
+      nombre: i.ingredientes.nombre,
+      cantidad: i.cantidad,
+      unidad: i.unidad_normalizada,
+      es_opcional: i.es_opcional,
+      categoria: i.ingredientes.categoria
+    }))
+    onAgregarCompras(items, receta.nombre)
+    setAgregado(true)
+  }
+
   const handleAgregarMenu = () => {
     onAgregarMenu(receta)
     setEnMenu(true)
@@ -181,11 +198,11 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
 
       {/* BOTONES FIJOS */}
       <div className="detalle-actions">
-        <button className="btn-secundario" onClick={handleAgregarCompras}>
-          {agregado ? '✓ Agregado' : '🛒 Lista'}
-        </button>
-        <button className="btn-primario" style={{ flex: 2 }} onClick={handleAgregarMenu}>
-          {enMenu ? '✓ En el menú' : '📋 Agregar al menú'}
+        <button
+          className={`btn-unico ${agregado ? 'agregado' : ''}`}
+          onClick={handleAgregarAmbos}
+        >
+          {agregado ? '✓ Agregado al menú y compras' : '＋ Agregar al menú y compras'}
         </button>
       </div>
     </div>

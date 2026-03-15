@@ -241,6 +241,27 @@
   color: var(--gris-medio);
 }
 
+.btn-unico {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  background: var(--verde-dark);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--blanco);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+
+.btn-unico.agregado {
+  background: #5A8A52;
+}
+
+.btn-unico:active { background: #6A9665; }
+
 .detalle-actions {
   position: fixed;
   bottom: 0;
