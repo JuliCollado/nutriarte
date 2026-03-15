@@ -36,6 +36,20 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
     setLoading(false)
   }
 
+  // Detectar remojo por ingredientes
+  const LEGUMBRES_REMOJO = ['garbanzos', 'lentejas', 'porotos']
+  const ingredientesConRemojo = ingredientes.filter(i => {
+    const nombre = i.ingredientes?.nombre?.toLowerCase() || ''
+    return nombre.includes('cocido') &&
+      LEGUMBRES_REMOJO.some(leg => nombre.includes(leg)) &&
+      !nombre.includes('turca')
+  })
+
+  const mostrarRemojo = receta.lleva_remojo || ingredientesConRemojo.length > 0
+  const ingredientesRemojoTexto = receta.lleva_remojo && receta.ingrediente_remojo
+    ? receta.ingrediente_remojo
+    : ingredientesConRemojo.map(i => i.ingredientes.nombre).join(', ')
+
   const pasos = receta.pasos
     ? receta.pasos.split(/\d+\.\s+/).filter(p => p.trim())
     : []
@@ -115,7 +129,7 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
             <span className="meta-valor">{receta.tiempo_prep_min} min</span>
             <span className="meta-label">Tiempo</span>
           </div>
-          {receta.lleva_remojo && (
+          {mostrarRemojo && (
             <div className="meta-item">
               <span className="meta-icon">💧</span>
               <span className="meta-valor">12 hs</span>
@@ -125,10 +139,10 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
         </div>
 
         {/* NOTA REMOJO */}
-        {receta.lleva_remojo && receta.ingrediente_remojo && (
+        {mostrarRemojo && (
           <div className="nota-remojo">
             <span>💡</span>
-            <p><strong>Remojo previo:</strong> {receta.ingrediente_remojo} necesita estar en agua 12 hs antes de cocinar.</p>
+            <p><strong>Remojo previo:</strong> {ingredientesRemojoTexto} necesita estar en agua 12 hs antes de cocinar.</p>
           </div>
         )}
 

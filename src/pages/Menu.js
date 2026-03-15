@@ -16,39 +16,56 @@ export default function Menu({ menuRecetas, onVerReceta, onRemoverDeMenu, onMarc
   const [realizadas, setRealizadas] = useState(new Set())
   const [remojos, setRemojos] = useState([]) // [{ingrediente, cantidad, unidad, receta}]
 
-  // Cargar datos de remojo para las recetas del menú con remojo
+  const LEGUMBRES_REMOJO = ['garbanzos', 'lentejas', 'porotos']
+
   useEffect(() => {
-    const recetasConRemojo = menuRecetas.filter(r => r.lleva_remojo && r.ingrediente_remojo)
-    if (recetasConRemojo.length === 0) { setRemojos([]); return }
+    if (menuRecetas.length === 0) { setRemojos([]); return }
 
     const cargarRemojos = async () => {
       const resultado = []
-      for (const receta of recetasConRemojo) {
+      const vistos = new Set()
+
+      for (const receta of menuRecetas) {
         const { data } = await supabase
           .from('receta_ingredientes')
           .select('cantidad, unidad_normalizada, ingredientes(nombre)')
           .eq('receta_id', receta.id)
-          .ilike('ingredientes.nombre', `%${receta.ingrediente_remojo}%`)
 
-        if (data && data.length > 0) {
-          const item = data.find(d => d.ingredientes)
-          if (item) {
+        if (!data) continue
+
+        // Detectar por lleva_remojo explícito
+        if (receta.lleva_remojo && receta.ingrediente_remojo) {
+          const item = data.find(d =>
+            d.ingredientes?.nombre?.toLowerCase().includes(receta.ingrediente_remojo.toLowerCase())
+          )
+          const key = receta.ingrediente_remojo.toLowerCase()
+          if (!vistos.has(key)) {
+            vistos.add(key)
             resultado.push({
               ingrediente: receta.ingrediente_remojo,
-              cantidad: item.cantidad || '',
-              unidad: item.unidad_normalizada || '',
-              receta: receta.nombre
+              cantidad: item?.cantidad || '',
+              unidad: item?.unidad_normalizada || '',
             })
           }
-        } else {
-          resultado.push({
-            ingrediente: receta.ingrediente_remojo,
-            cantidad: '',
-            unidad: '',
-            receta: receta.nombre
-          })
         }
+
+        // Detectar por ingredientes con "cocido" que sean legumbres
+        data.forEach(d => {
+          const nombre = d.ingredientes?.nombre?.toLowerCase() || ''
+          const esLegumbre = LEGUMBRES_REMOJO.some(l => nombre.includes(l))
+          const esCocido = nombre.includes('cocido')
+          const noTurca = !nombre.includes('turca')
+          if (esLegumbre && esCocido && noTurca && !vistos.has(nombre)) {
+            vistos.add(nombre)
+            resultado.push({
+              ingrediente: d.ingredientes.nombre,
+              cantidad: d.cantidad || '',
+              unidad: d.unidad_normalizada || '',
+            })
+          }
+        })
       }
+
       setRemojos(resultado)
     }
 
@@ -108,11 +125,18 @@ export default function Menu({ menuRecetas, onVerReceta, onRemoverDeMenu, onMarc
   return (
     <div className="menu-page">
       <div className="menu-header">
-        <h1 className="page-titulo">Mi menú</h1>
-        <p className="page-subtitulo">
-          {pendientes} pendiente{pendientes !== 1 ? 's' : ''}
-          {hechas > 0 && ` · ${hechas} realizada${hechas !== 1 ? 's' : ''}`}
-        </p>
+        <div className="compras-header-top">
+          <div>
+            <h1 className="page-titulo">Mi menú</h1>
+            <p className="page-subtitulo">
+              {pendientes} pendiente{pendientes !== 1 ? 's' : ''}
+              {hechas > 0 && ` · ${hechas} realizada${hechas !== 1 ? 's' : ''}`}
+            </p>
+          </div>
+          <button className="btn-limpiar-compras" onClick={() => { menuRecetas.forEach(r => onRemoverDeMenu(r.id)); setRealizadas(new Set()) }}>
+            Limpiar todo
+          </button>
+        </div>
       </div>
 
       <div className="menu-contenido">
