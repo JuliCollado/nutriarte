@@ -6,8 +6,11 @@ const CATEGORIA_LABELS = {
   almacen: '🛒 Almacén'
 }
 
-export default function Compras({ lista, onLimpiar }) {
+export default function Compras({ lista, onLimpiar, onRemoverReceta }) {
   const [tachados, setTachados] = useState(new Set())
+
+  // Recetas únicas en la lista
+  const recetas = [...new Set(lista.map(i => i.origen))]
 
   if (lista.length === 0) {
     return (
@@ -24,15 +27,13 @@ export default function Compras({ lista, onLimpiar }) {
     )
   }
 
-  // Unificar ingredientes duplicados sumando cantidades
+  // Unificar ingredientes de todas las recetas activas
   const unificados = {}
   lista.forEach(item => {
     const key = item.nombre.toLowerCase()
+    if (item.categoria === 'omitir') return
     if (!unificados[key]) {
-      unificados[key] = {
-        ...item,
-        origenes: [item.origen]
-      }
+      unificados[key] = { ...item, origenes: [item.origen] }
     } else {
       if (!unificados[key].origenes.includes(item.origen)) {
         unificados[key].origenes.push(item.origen)
@@ -40,11 +41,10 @@ export default function Compras({ lista, onLimpiar }) {
     }
   })
 
-  // Filtrar agua y agrupar por categoría
-  const items = Object.values(unificados).filter(i => i.categoria !== 'omitir')
+  const items = Object.values(unificados)
   const porCategoria = {
     verduleria: items.filter(i => i.categoria === 'verduleria'),
-    almacen: items.filter(i => i.categoria === 'almacen' || !i.categoria)
+    almacen: items.filter(i => i.categoria !== 'verduleria')
   }
 
   const totalItems = items.length
@@ -60,8 +60,14 @@ export default function Compras({ lista, onLimpiar }) {
     })
   }
 
+  const handleRemoverReceta = (receta) => {
+    // Limpiar tachados que ya no tienen ingredientes
+    setTachados(new Set())
+    onRemoverReceta(receta)
+  }
+
   const compartir = () => {
-    const lineas = []
+    const lineas = [`*Lista de compras*\n`]
     Object.entries(porCategoria).forEach(([cat, items]) => {
       const activos = items.filter(i => !tachados.has(i.nombre.toLowerCase()))
       if (activos.length === 0) return
@@ -92,22 +98,34 @@ export default function Compras({ lista, onLimpiar }) {
             </p>
           </div>
           <button className="btn-limpiar-compras" onClick={() => { onLimpiar(); setTachados(new Set()) }}>
-            Limpiar
+            Limpiar todo
           </button>
         </div>
 
-        {/* BARRA DE PROGRESO */}
         {tachados_count > 0 && (
           <div className="progreso-bar">
-            <div
-              className="progreso-fill"
-              style={{ width: `${(tachados_count / totalItems) * 100}%` }}
-            />
+            <div className="progreso-fill" style={{ width: `${(tachados_count / totalItems) * 100}%` }} />
           </div>
         )}
       </div>
 
       <div className="compras-contenido">
+
+        {/* RECETAS SELECCIONADAS */}
+        <div className="recetas-seccion">
+          <p className="seccion-titulo">📋 Recetas seleccionadas</p>
+          {recetas.map(receta => (
+            <div key={receta} className="receta-chip">
+              <span className="receta-chip-nombre">{receta}</span>
+              <button
+                className="receta-chip-remove"
+                onClick={() => handleRemoverReceta(receta)}
+              >✕</button>
+            </div>
+          ))}
+        </div>
+
+        {/* INGREDIENTES POR CATEGORÍA */}
         {Object.entries(porCategoria).map(([cat, items]) => {
           if (items.length === 0) return null
           const activos = items.filter(i => !tachados.has(i.nombre.toLowerCase()))
@@ -116,27 +134,16 @@ export default function Compras({ lista, onLimpiar }) {
           return (
             <div key={cat} className="compras-seccion">
               <p className="seccion-titulo">{CATEGORIA_LABELS[cat]}</p>
-
               {activos.map(item => (
-                <ItemCompra
-                  key={item.nombre}
-                  item={item}
-                  tachado={false}
-                  onToggle={() => toggleTachado(item.nombre.toLowerCase())}
-                />
+                <ItemCompra key={item.nombre} item={item} tachado={false} onToggle={() => toggleTachado(item.nombre.toLowerCase())} />
               ))}
-
               {hechos.map(item => (
-                <ItemCompra
-                  key={item.nombre}
-                  item={item}
-                  tachado={true}
-                  onToggle={() => toggleTachado(item.nombre.toLowerCase())}
-                />
+                <ItemCompra key={item.nombre} item={item} tachado={true} onToggle={() => toggleTachado(item.nombre.toLowerCase())} />
               ))}
             </div>
           )
         })}
+
       </div>
 
       <div className="compras-actions">
@@ -157,7 +164,7 @@ function ItemCompra({ item, tachado, onToggle }) {
       <div className="compra-info">
         <span className="compra-nombre">{item.nombre}</span>
         {item.origenes && item.origenes.length > 1 && (
-          <span className="compra-origen">{item.origenes.length} recetas</span>
+          <span className="compra-origen">{item.origenes.join(' · ')}</span>
         )}
       </div>
       {item.cantidad && (

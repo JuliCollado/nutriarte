@@ -146,3 +146,41 @@
   gap: 10px;
   z-index: 100;
 }
+
+/* RECETAS SELECCIONADAS */
+.recetas-seccion {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.receta-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--crema);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.receta-chip:last-child { margin-bottom: 0; }
+
+.receta-chip-nombre {
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.receta-chip-remove {
+  background: none;
+  border: none;
+  color: var(--gris);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.receta-chip-remove:active { background: var(--crema-dark); }
