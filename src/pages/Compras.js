@@ -119,7 +119,7 @@ export default function Compras({ lista, onLimpiar, onRemoverReceta }) {
               <span className="receta-chip-nombre">{receta}</span>
               <button
                 className="receta-chip-remove"
-                onClick={() => handleRemoverReceta(receta)}
+                onClick={(e) => { e.stopPropagation(); handleRemoverReceta(receta) }}
               >✕</button>
             </div>
           ))}

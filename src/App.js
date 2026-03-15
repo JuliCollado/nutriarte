@@ -12,6 +12,10 @@ export default function App() {
   const [listaCompras, setListaCompras] = useState([])
   const [menuSemanal, setMenuSemanal] = useState({})
 
+  const removerReceta = (recetaNombre) => {
+    setListaCompras(prev => prev.filter(i => i.origen !== recetaNombre))
+  }
+
   const agregarACompras = (ingredientes, recetaNombre) => {
     setListaCompras(prev => {
       const nuevos = ingredientes.map(i => ({
@@ -55,7 +59,7 @@ export default function App() {
       <div className="contenido">
         {tab === 'recetas' && <Recetas onVerReceta={verReceta} />}
         {tab === 'menu' && <Menu menuSemanal={menuSemanal} onVerReceta={verReceta} />}
-        {tab === 'compras' && <Compras lista={listaCompras} onLimpiar={() => setListaCompras([])} />}
+        {tab === 'compras' && <Compras lista={listaCompras} onLimpiar={() => setListaCompras([])} onRemoverReceta={removerReceta} />}
         {tab === 'perfil' && <Perfil />}
       </div>
 
