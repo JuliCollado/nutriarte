@@ -16,6 +16,7 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
   const [loading, setLoading] = useState(true)
   const [favorito, setFavorito] = useState(false)
   const [agregado, setAgregado] = useState(false)
+  const [enMenu, setEnMenu] = useState(false)
 
   useEffect(() => {
     cargarIngredientes()
@@ -38,6 +39,11 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
   const pasos = receta.pasos
     ? receta.pasos.split(/\d+\.\s+/).filter(p => p.trim())
     : []
+
+  const handleAgregarMenu = () => {
+    onAgregarMenu(receta)
+    setEnMenu(true)
+  }
 
   const handleAgregarCompras = () => {
     const items = ingredientes.map(i => ({
@@ -178,8 +184,8 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
         <button className="btn-secundario" onClick={handleAgregarCompras}>
           {agregado ? '✓ Agregado' : '🛒 Lista'}
         </button>
-        <button className="btn-primario" style={{ flex: 2 }}>
-          📋 Agregar al menú
+        <button className="btn-primario" style={{ flex: 2 }} onClick={handleAgregarMenu}>
+          {enMenu ? '✓ En el menú' : '📋 Agregar al menú'}
         </button>
       </div>
     </div>

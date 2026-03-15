@@ -1,0 +1,121 @@
+.menu-page { background: var(--crema); min-height: 100vh; }
+
+.menu-header {
+  background: var(--blanco);
+  padding: 52px 24px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.menu-contenido {
+  padding: 16px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* RECETAS SELECCIONADAS */
+.recetas-seccion {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.receta-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--crema);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+.receta-chip:last-child { margin-bottom: 0; }
+
+.receta-chip-nombre {
+  font-size: 14px;
+  font-weight: 500;
+  flex: 1;
+}
+
+.receta-chip-remove {
+  background: none;
+  border: none;
+  color: var(--gris);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.receta-chip-remove:active { background: var(--crema-dark); }
+
+/* SECCIONES POR MOMENTO */
+.menu-seccion {}
+
+.seccion-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--verde-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* ITEM DE RECETA */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--blanco);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.menu-item:last-child { margin-bottom: 0; }
+.menu-item:active { transform: scale(0.98); }
+
+.menu-item-emoji {
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  background: var(--crema);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.menu-item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.menu-item-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Fraunces', serif;
+  line-height: 1.2;
+}
+
+.menu-item-meta {
+  font-size: 12px;
+  color: var(--gris);
+}
+
+.menu-item-arrow {
+  font-size: 20px;
+  color: var(--crema-dark);
+  flex-shrink: 0;
+}
