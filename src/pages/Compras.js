@@ -1,26 +1,77 @@
+import { useState } from 'react'
+import './Compras.css'
+
+const CATEGORIA_LABELS = {
+  verduleria: '🥦 Verdulería',
+  almacen: '🛒 Almacén'
+}
+
 export default function Compras({ lista, onLimpiar }) {
+  const [tachados, setTachados] = useState(new Set())
+
   if (lista.length === 0) {
     return (
-      <div style={{ padding: '56px 24px 24px' }}>
-        <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, marginBottom: 8 }}>Lista de compras</h1>
-        <div className="empty-state" style={{ paddingTop: 40 }}>
+      <div className="compras-page">
+        <div className="compras-header">
+          <h1 className="page-titulo">Lista de compras</h1>
+          <p className="page-subtitulo">Tu lista está vacía</p>
+        </div>
+        <div className="empty-state">
           <div className="empty-icon">🛒</div>
-          <p>Todavía no agregaste ingredientes.<br />Entrá a una receta y tocá "Lista".</p>
+          <p>Entrá a una receta y tocá<br />"Lista" para agregar ingredientes.</p>
         </div>
       </div>
     )
   }
 
-  const porOrigen = lista.reduce((acc, item) => {
-    if (!acc[item.origen]) acc[item.origen] = []
-    acc[item.origen].push(item)
-    return acc
-  }, {})
+  // Unificar ingredientes duplicados sumando cantidades
+  const unificados = {}
+  lista.forEach(item => {
+    const key = item.nombre.toLowerCase()
+    if (!unificados[key]) {
+      unificados[key] = {
+        ...item,
+        origenes: [item.origen]
+      }
+    } else {
+      if (!unificados[key].origenes.includes(item.origen)) {
+        unificados[key].origenes.push(item.origen)
+      }
+    }
+  })
+
+  // Filtrar agua y agrupar por categoría
+  const items = Object.values(unificados).filter(i => i.categoria !== 'omitir')
+  const porCategoria = {
+    verduleria: items.filter(i => i.categoria === 'verduleria'),
+    almacen: items.filter(i => i.categoria === 'almacen' || !i.categoria)
+  }
+
+  const totalItems = items.length
+  const tachados_count = tachados.size
+  const pendientes = totalItems - tachados_count
+
+  const toggleTachado = (nombre) => {
+    setTachados(prev => {
+      const next = new Set(prev)
+      if (next.has(nombre)) next.delete(nombre)
+      else next.add(nombre)
+      return next
+    })
+  }
 
   const compartir = () => {
-    const texto = Object.entries(porOrigen).map(([receta, items]) =>
-      `*${receta}*\n` + items.map(i => `• ${i.nombre}${i.cantidad ? ` — ${i.cantidad} ${i.unidad || ''}` : ''}`).join('\n')
-    ).join('\n\n')
+    const lineas = []
+    Object.entries(porCategoria).forEach(([cat, items]) => {
+      const activos = items.filter(i => !tachados.has(i.nombre.toLowerCase()))
+      if (activos.length === 0) return
+      lineas.push(`*${CATEGORIA_LABELS[cat]}*`)
+      activos.forEach(i => {
+        lineas.push(`• ${i.nombre}${i.cantidad ? ` — ${i.cantidad} ${i.unidad || ''}`.trim() : ''}`)
+      })
+      lineas.push('')
+    })
+    const texto = lineas.join('\n')
     if (navigator.share) {
       navigator.share({ text: texto })
     } else {
@@ -30,54 +81,88 @@ export default function Compras({ lista, onLimpiar }) {
   }
 
   return (
-    <div style={{ padding: '56px 24px 100px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20 }}>
-        <div>
-          <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, marginBottom: 4 }}>Lista de compras</h1>
-          <p style={{ color: '#6B6B6B', fontSize: 13 }}>{lista.length} ingredientes</p>
+    <div className="compras-page">
+      <div className="compras-header">
+        <div className="compras-header-top">
+          <div>
+            <h1 className="page-titulo">Lista de compras</h1>
+            <p className="page-subtitulo">
+              {pendientes} pendiente{pendientes !== 1 ? 's' : ''}
+              {tachados_count > 0 && ` · ${tachados_count} listo${tachados_count !== 1 ? 's' : ''}`}
+            </p>
+          </div>
+          <button className="btn-limpiar-compras" onClick={() => { onLimpiar(); setTachados(new Set()) }}>
+            Limpiar
+          </button>
         </div>
-        <button onClick={onLimpiar} style={{
-          background: '#EDE6D6', border: 'none', borderRadius: 10,
-          padding: '8px 14px', fontSize: 12, fontWeight: 600,
-          color: '#6B6B6B', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif'
-        }}>
-          Limpiar
-        </button>
+
+        {/* BARRA DE PROGRESO */}
+        {tachados_count > 0 && (
+          <div className="progreso-bar">
+            <div
+              className="progreso-fill"
+              style={{ width: `${(tachados_count / totalItems) * 100}%` }}
+            />
+          </div>
+        )}
       </div>
 
-      {Object.entries(porOrigen).map(([receta, items]) => (
-        <div key={receta} style={{ marginBottom: 20 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: '#7FA876', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 8 }}>
-            {receta}
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {items.map(item => (
-              <div key={item.id} style={{
-                background: 'white', borderRadius: 12, padding: '12px 14px',
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-              }}>
-                <span style={{ fontSize: 14, fontWeight: 500 }}>{item.nombre}</span>
-                {item.cantidad && (
-                  <span style={{ fontSize: 13, color: '#4A4A4A', fontWeight: 500 }}>
-                    {item.cantidad} {item.unidad || ''}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
+      <div className="compras-contenido">
+        {Object.entries(porCategoria).map(([cat, items]) => {
+          if (items.length === 0) return null
+          const activos = items.filter(i => !tachados.has(i.nombre.toLowerCase()))
+          const hechos = items.filter(i => tachados.has(i.nombre.toLowerCase()))
 
-      <div style={{
-        position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-        width: '100%', maxWidth: 430,
-        background: 'white', borderTop: '1px solid #EDE6D6',
-        padding: '14px 20px 28px', zIndex: 100
-      }}>
-        <button className="btn-primario" style={{ width: '100%' }} onClick={compartir}>
+          return (
+            <div key={cat} className="compras-seccion">
+              <p className="seccion-titulo">{CATEGORIA_LABELS[cat]}</p>
+
+              {activos.map(item => (
+                <ItemCompra
+                  key={item.nombre}
+                  item={item}
+                  tachado={false}
+                  onToggle={() => toggleTachado(item.nombre.toLowerCase())}
+                />
+              ))}
+
+              {hechos.map(item => (
+                <ItemCompra
+                  key={item.nombre}
+                  item={item}
+                  tachado={true}
+                  onToggle={() => toggleTachado(item.nombre.toLowerCase())}
+                />
+              ))}
+            </div>
+          )
+        })}
+      </div>
+
+      <div className="compras-actions">
+        <button className="btn-primario" style={{ flex: 1 }} onClick={compartir}>
           📤 Compartir lista
         </button>
       </div>
+    </div>
+  )
+}
+
+function ItemCompra({ item, tachado, onToggle }) {
+  return (
+    <div className={`compra-item ${tachado ? 'tachado' : ''}`} onClick={onToggle}>
+      <div className={`compra-check ${tachado ? 'checked' : ''}`}>
+        {tachado && <span>✓</span>}
+      </div>
+      <div className="compra-info">
+        <span className="compra-nombre">{item.nombre}</span>
+        {item.origenes && item.origenes.length > 1 && (
+          <span className="compra-origen">{item.origenes.length} recetas</span>
+        )}
+      </div>
+      {item.cantidad && (
+        <span className="compra-cantidad">{item.cantidad} {item.unidad || ''}</span>
+      )}
     </div>
   )
 }

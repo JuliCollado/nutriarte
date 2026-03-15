@@ -26,7 +26,7 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
       .from('receta_ingredientes')
       .select(`
         id, cantidad, unidad_normalizada, es_opcional, es_principal,
-        ingredientes (id, nombre)
+        ingredientes (id, nombre, categoria)
       `)
       .eq('receta_id', receta.id)
       .order('es_principal', { ascending: false })
@@ -45,7 +45,8 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
       nombre: i.ingredientes.nombre,
       cantidad: i.cantidad,
       unidad: i.unidad_normalizada,
-      es_opcional: i.es_opcional
+      es_opcional: i.es_opcional,
+      categoria: i.ingredientes.categoria
     }))
     onAgregarCompras(items, receta.nombre)
     setAgregado(true)

@@ -1,0 +1,148 @@
+.compras-page { background: var(--crema); min-height: 100vh; }
+
+.compras-header {
+  background: var(--blanco);
+  padding: 52px 24px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+
+.compras-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.btn-limpiar-compras {
+  background: var(--crema-dark);
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gris-medio);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 4px;
+}
+
+/* BARRA DE PROGRESO */
+.progreso-bar {
+  height: 4px;
+  background: var(--crema-dark);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.progreso-fill {
+  height: 100%;
+  background: var(--verde-dark);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* CONTENIDO */
+.compras-contenido {
+  padding: 16px 16px 100px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.compras-seccion {}
+
+.seccion-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--verde-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+/* ITEM */
+.compra-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--blanco);
+  border-radius: 12px;
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.compra-item.tachado { opacity: 0.45; }
+.compra-item:active { opacity: 0.7; }
+
+.compra-check {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--crema-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  transition: all 0.2s;
+}
+
+.compra-check.checked {
+  background: var(--verde-dark);
+  border-color: var(--verde-dark);
+}
+
+.compra-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compra-nombre {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.compra-item.tachado .compra-nombre {
+  text-decoration: line-through;
+}
+
+.compra-origen {
+  font-size: 11px;
+  color: var(--gris);
+}
+
+.compra-cantidad {
+  font-size: 13px;
+  color: var(--gris-medio);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+/* BOTONES FIJOS */
+.compras-actions {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
+  background: var(--blanco);
+  border-top: 1px solid var(--crema-dark);
+  padding: 14px 20px 28px;
+  display: flex;
+  gap: 10px;
+  z-index: 100;
+}
