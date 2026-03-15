@@ -10,11 +10,10 @@ const EMOJIS_TIPO = {
   bebida: '🥤'
 }
 
-export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMenu }) {
+export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMenu, esFavorito, onToggleFavorito }) {
   const [tab, setTab] = useState('ingredientes')
   const [ingredientes, setIngredientes] = useState([])
   const [loading, setLoading] = useState(true)
-  const [favorito, setFavorito] = useState(false)
   const [agregado, setAgregado] = useState(false)
   const [enMenu, setEnMenu] = useState(false)
 
@@ -98,8 +97,8 @@ export default function Receta({ receta, onVolver, onAgregarCompras, onAgregarMe
         <div className="hero-blob2" />
         <span className="hero-emoji">{EMOJIS_TIPO[receta.tipo_comida] || '🍽'}</span>
         <button className="btn-back" onClick={onVolver}>←</button>
-        <button className="btn-fav" onClick={() => setFavorito(!favorito)}>
-          {favorito ? '❤️' : '🤍'}
+        <button className="btn-fav" onClick={onToggleFavorito}>
+          {esFavorito ? '❤️' : '🤍'}
         </button>
       </div>
 

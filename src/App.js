@@ -1,4 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from './lib/supabase'
+import Auth from './pages/Auth'
 import Recetas from './pages/Recetas'
 import Receta from './pages/Receta'
 import Menu from './pages/Menu'
@@ -7,19 +9,95 @@ import Perfil from './pages/Perfil'
 import './App.css'
 
 export default function App() {
+  const [usuario, setUsuario] = useState(null)
+  const [cargandoSesion, setCargandoSesion] = useState(true)
   const [tab, setTab] = useState('recetas')
   const [recetaSeleccionada, setRecetaSeleccionada] = useState(null)
-  const [tabAnterior, setTabAnterior] = useState('recetas')
   const [listaCompras, setListaCompras] = useState([])
   const [menuRecetas, setMenuRecetas] = useState([])
+  const [favoritos, setFavoritos] = useState(new Set())
   const [historial, setHistorial] = useState([])
+
+  // Verificar sesión al iniciar
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUsuario(session.user)
+        cargarDatosUsuario(session.user.id)
+      }
+      setCargandoSesion(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUsuario(session.user)
+        cargarDatosUsuario(session.user.id)
+      } else {
+        setUsuario(null)
+        setFavoritos(new Set())
+        setHistorial([])
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const cargarDatosUsuario = async (userId) => {
+    // Cargar favoritos
+    const { data: favs } = await supabase
+      .from('favoritos')
+      .select('receta_id')
+      .eq('usuario_id', userId)
+
+    if (favs) setFavoritos(new Set(favs.map(f => f.receta_id)))
+
+    // Cargar historial
+    const { data: hist } = await supabase
+      .from('historial_recetas')
+      .select('receta_id, fecha, recetas(id, nombre, tipo_comida, tiempo_prep_min)')
+      .eq('usuario_id', userId)
+      .order('fecha', { ascending: false })
+      .limit(50)
+
+    if (hist) {
+      setHistorial(hist.map(h => ({
+        ...h.recetas,
+        fecha: new Date(h.fecha).toLocaleDateString('es-AR')
+      })))
+    }
+  }
+
+  const toggleFavorito = async (recetaId) => {
+    if (!usuario) return
+    const esFav = favoritos.has(recetaId)
+    if (esFav) {
+      await supabase.from('favoritos').delete()
+        .eq('usuario_id', usuario.id).eq('receta_id', recetaId)
+      setFavoritos(prev => { const next = new Set(prev); next.delete(recetaId); return next })
+    } else {
+      await supabase.from('favoritos').insert({ usuario_id: usuario.id, receta_id: recetaId })
+      setFavoritos(prev => new Set([...prev, recetaId]))
+    }
+  }
+
+  const marcarRealizada = async (receta) => {
+    if (!usuario) return
+    await supabase.from('historial_recetas').insert({
+      usuario_id: usuario.id,
+      receta_id: receta.id,
+      fecha: new Date().toISOString()
+    })
+    setHistorial(prev => [{
+      ...receta,
+      fecha: new Date().toLocaleDateString('es-AR')
+    }, ...prev])
+  }
 
   const agregarACompras = (ingredientes, recetaNombre) => {
     setListaCompras(prev => {
       const existentes = prev.filter(p => p.origen !== recetaNombre)
       const nuevos = ingredientes.map(i => ({
-        ...i,
-        origen: recetaNombre,
+        ...i, origen: recetaNombre,
         id: `${i.ingrediente_id}-${recetaNombre}`
       }))
       return [...existentes, ...nuevos]
@@ -31,31 +109,36 @@ export default function App() {
   }
 
   const agregarAlMenu = (receta) => {
-    setMenuRecetas(prev => {
-      if (prev.find(r => r.id === receta.id)) return prev
-      return [...prev, receta]
-    })
-  }
-
-  const marcarRealizada = (receta) => {
-    setHistorial(prev => {
-      const yaExiste = prev.find(h => h.id === receta.id && h.fecha === new Date().toLocaleDateString('es-AR'))
-      if (yaExiste) return prev
-      return [{ ...receta, fecha: new Date().toLocaleDateString('es-AR') }, ...prev]
-    })
+    setMenuRecetas(prev => prev.find(r => r.id === receta.id) ? prev : [...prev, receta])
   }
 
   const removerDelMenu = (recetaId) => {
     setMenuRecetas(prev => prev.filter(r => r.id !== recetaId))
   }
 
-  const verReceta = (receta) => {
-    setTabAnterior(tab)
-    setRecetaSeleccionada(receta)
+  const verReceta = (receta) => setRecetaSeleccionada(receta)
+  const volver = () => setRecetaSeleccionada(null)
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setUsuario(null)
+    setListaCompras([])
+    setMenuRecetas([])
+    setFavoritos(new Set())
+    setHistorial([])
+    setTab('recetas')
   }
 
-  const volver = () => {
-    setRecetaSeleccionada(null)
+  if (cargandoSesion) {
+    return (
+      <div className="app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: 'var(--gris)', fontSize: 14 }}>Cargando...</p>
+      </div>
+    )
+  }
+
+  if (!usuario) {
+    return <Auth onLogin={(user) => setUsuario(user)} />
   }
 
   if (recetaSeleccionada) {
@@ -66,6 +149,8 @@ export default function App() {
           onVolver={volver}
           onAgregarCompras={agregarACompras}
           onAgregarMenu={agregarAlMenu}
+          esFavorito={favoritos.has(recetaSeleccionada.id)}
+          onToggleFavorito={() => toggleFavorito(recetaSeleccionada.id)}
         />
       </div>
     )
@@ -74,7 +159,7 @@ export default function App() {
   return (
     <div className="app">
       <div className="contenido">
-        {tab === 'recetas' && <Recetas onVerReceta={verReceta} />}
+        {tab === 'recetas' && <Recetas onVerReceta={verReceta} favoritos={favoritos} />}
         {tab === 'menu' && (
           <Menu
             menuRecetas={menuRecetas}
@@ -90,7 +175,15 @@ export default function App() {
             onRemoverReceta={removerReceta}
           />
         )}
-        {tab === 'perfil' && <Perfil historial={historial} onVerReceta={verReceta} />}
+        {tab === 'perfil' && (
+          <Perfil
+            usuario={usuario}
+            historial={historial}
+            favoritos={favoritos}
+            onVerReceta={verReceta}
+            onLogout={handleLogout}
+          />
+        )}
       </div>
 
       <nav className="nav-bottom">

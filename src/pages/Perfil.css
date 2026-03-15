@@ -1,0 +1,112 @@
+.perfil-page { background: var(--crema); min-height: 100vh; }
+
+.perfil-header {
+  background: var(--blanco);
+  padding: 52px 24px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.perfil-avatar {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: var(--verde-dark);
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: 'Fraunces', serif;
+}
+
+.perfil-nombre {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.perfil-email { font-size: 13px; color: var(--gris); }
+
+.perfil-contenido { padding: 16px 16px 100px; display: flex; flex-direction: column; gap: 20px; }
+
+/* STATS */
+.perfil-stats {
+  background: var(--blanco);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.stat-item { text-align: center; }
+
+.stat-valor {
+  display: block;
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--verde-dark);
+}
+
+.stat-label { font-size: 12px; color: var(--gris); font-weight: 500; }
+
+.stat-divider { width: 1px; height: 40px; background: var(--crema-dark); }
+
+/* SECCIÓN */
+.perfil-seccion {}
+
+.seccion-titulo {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--verde-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  padding-left: 4px;
+}
+
+.perfil-lista { display: flex; flex-direction: column; gap: 8px; }
+
+.perfil-item {
+  background: var(--blanco);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.perfil-item:active { opacity: 0.7; }
+
+.perfil-item-nombre {
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Fraunces', serif;
+  margin-bottom: 2px;
+}
+
+.perfil-item-fecha { font-size: 12px; color: var(--gris); }
+
+.perfil-item-arrow { font-size: 20px; color: var(--crema-dark); }
+
+/* LOGOUT */
+.btn-logout {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1.5px solid var(--crema-dark);
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gris);
+  cursor: pointer;
+}
+
+.btn-logout:active { background: var(--crema); }

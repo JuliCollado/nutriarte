@@ -1,45 +1,64 @@
-export default function Perfil({ historial = [], onVerReceta }) {
-  return (
-    <div style={{ padding: '52px 24px 100px', background: 'var(--crema)', minHeight: '100vh' }}>
-      <h1 style={{ fontFamily: 'Fraunces, serif', fontSize: 28, marginBottom: 4 }}>Perfil</h1>
-      <p style={{ color: '#6B6B6B', fontSize: 13, marginBottom: 28 }}>Login y favoritos próximamente 🌿</p>
+import './Perfil.css'
 
-      {historial.length > 0 && (
+export default function Perfil({ usuario, historial = [], favoritos, onVerReceta, onLogout }) {
+  const nombre = usuario?.user_metadata?.nombre || usuario?.email?.split('@')[0] || 'Paciente'
+
+  return (
+    <div className="perfil-page">
+      <div className="perfil-header">
+        <div className="perfil-avatar">{nombre.charAt(0).toUpperCase()}</div>
         <div>
-          <p style={{
-            fontSize: 12, fontWeight: 700, color: 'var(--verde-dark)',
-            textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 12
-          }}>
-            📖 Historial de recetas realizadas
-          </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {historial.map((receta, i) => (
-              <div
-                key={i}
-                onClick={() => onVerReceta(receta)}
-                style={{
-                  background: 'white', borderRadius: 14, padding: '13px 16px',
-                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  cursor: 'pointer'
-                }}
-              >
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, fontFamily: 'Fraunces, serif' }}>{receta.nombre}</p>
-                  <p style={{ fontSize: 12, color: '#6B6B6B', marginTop: 2 }}>{receta.fecha}</p>
-                </div>
-                <span style={{ fontSize: 18, color: '#EDE6D6' }}>›</span>
-              </div>
-            ))}
+          <h1 className="perfil-nombre">{nombre}</h1>
+          <p className="perfil-email">{usuario?.email}</p>
+        </div>
+      </div>
+
+      <div className="perfil-contenido">
+
+        {/* STATS */}
+        <div className="perfil-stats">
+          <div className="stat-item">
+            <span className="stat-valor">{favoritos?.size || 0}</span>
+            <span className="stat-label">Favoritos</span>
+          </div>
+          <div className="stat-divider" />
+          <div className="stat-item">
+            <span className="stat-valor">{historial.length}</span>
+            <span className="stat-label">Realizadas</span>
           </div>
         </div>
-      )}
 
-      {historial.length === 0 && (
-        <div style={{ textAlign: 'center', paddingTop: 40, color: '#6B6B6B', fontSize: 14 }}>
-          <div style={{ fontSize: 40, marginBottom: 12 }}>📖</div>
-          <p>Acá vas a ver las recetas que fuiste realizando.</p>
-        </div>
-      )}
+        {/* HISTORIAL */}
+        {historial.length > 0 && (
+          <div className="perfil-seccion">
+            <p className="seccion-titulo">📖 Historial de recetas</p>
+            <div className="perfil-lista">
+              {historial.map((receta, i) => (
+                <div key={i} className="perfil-item" onClick={() => onVerReceta(receta)}>
+                  <div>
+                    <p className="perfil-item-nombre">{receta.nombre}</p>
+                    <p className="perfil-item-fecha">{receta.fecha}</p>
+                  </div>
+                  <span className="perfil-item-arrow">›</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {historial.length === 0 && (
+          <div className="empty-state" style={{ paddingTop: 20 }}>
+            <div className="empty-icon">📖</div>
+            <p>Acá vas a ver las recetas que fuiste realizando.</p>
+          </div>
+        )}
+
+        {/* LOGOUT */}
+        <button className="btn-logout" onClick={onLogout}>
+          Cerrar sesión
+        </button>
+
+      </div>
     </div>
   )
 }
