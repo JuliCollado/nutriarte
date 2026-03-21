@@ -145,8 +145,14 @@ export default function Recetas({ onVerReceta }) {
       </div>
 
       {/* TAGS DE FILTROS ACTIVOS */}
-      {filtrosActivos && !mostrarFiltros && (
+      {(filtrosActivos || busqueda) && !mostrarFiltros && (
         <div className="filtros-activos-row">
+          {busqueda && (
+            <span className="filtro-tag">
+              🔍 {busqueda}
+              <button onClick={() => setBusqueda('')}>✕</button>
+            </span>
+          )}
           {filtros.tipo && (
             <span className="filtro-tag">
               {EMOJIS_TIPO[filtros.tipo]} {TIPO_LABELS[filtros.tipo]}
