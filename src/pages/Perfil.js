@@ -1,6 +1,6 @@
 import './Perfil.css'
 
-export default function Perfil({ usuario, historial = [], favoritos, onVerReceta, onLogout }) {
+export default function Perfil({ usuario, historial = [], favoritos, favoritosDetalle = [], onVerReceta, onLogout }) {
   const nombre = usuario?.user_metadata?.nombre || usuario?.email?.split('@')[0] || 'Paciente'
 
   return (
@@ -18,7 +18,7 @@ export default function Perfil({ usuario, historial = [], favoritos, onVerReceta
         {/* STATS */}
         <div className="perfil-stats">
           <div className="stat-item">
-            <span className="stat-valor">{favoritos?.size || 0}</span>
+            <span className="stat-valor">{favoritosDetalle.length}</span>
             <span className="stat-label">Favoritos</span>
           </div>
           <div className="stat-divider" />
@@ -27,6 +27,24 @@ export default function Perfil({ usuario, historial = [], favoritos, onVerReceta
             <span className="stat-label">Realizadas</span>
           </div>
         </div>
+
+        {/* FAVORITOS */}
+        {favoritosDetalle.length > 0 && (
+          <div className="perfil-seccion">
+            <p className="seccion-titulo">❤️ Mis favoritos</p>
+            <div className="perfil-lista">
+              {favoritosDetalle.map(receta => (
+                <div key={receta.id} className="perfil-item" onClick={() => onVerReceta(receta)}>
+                  <div>
+                    <p className="perfil-item-nombre">{receta.nombre}</p>
+                    <p className="perfil-item-fecha">⏱ {receta.tiempo_prep_min} min</p>
+                  </div>
+                  <span className="perfil-item-arrow">›</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* HISTORIAL */}
         {historial.length > 0 && (

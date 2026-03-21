@@ -16,6 +16,7 @@ export default function App() {
   const [listaCompras, setListaCompras] = useState([])
   const [menuRecetas, setMenuRecetas] = useState([])
   const [favoritos, setFavoritos] = useState(new Set())
+  const [favoritosDetalle, setFavoritosDetalle] = useState([])
   const [historial, setHistorial] = useState([])
 
   // Verificar sesión al iniciar
@@ -43,13 +44,16 @@ export default function App() {
   }, [])
 
   const cargarDatosUsuario = async (userId) => {
-    // Cargar favoritos
+    // Cargar favoritos con datos completos
     const { data: favs } = await supabase
       .from('favoritos')
-      .select('receta_id')
+      .select('receta_id, recetas(id, nombre, tipo_comida, tiempo_prep_min, apta_vegana, apta_sin_gluten, dulzor)')
       .eq('usuario_id', userId)
 
-    if (favs) setFavoritos(new Set(favs.map(f => f.receta_id)))
+    if (favs) {
+      setFavoritos(new Set(favs.map(f => f.receta_id)))
+      setFavoritosDetalle(favs.map(f => f.recetas).filter(Boolean))
+    }
 
     // Cargar historial
     const { data: hist } = await supabase
@@ -67,16 +71,19 @@ export default function App() {
     }
   }
 
-  const toggleFavorito = async (recetaId) => {
+  const toggleFavorito = async (receta) => {
     if (!usuario) return
+    const recetaId = typeof receta === 'object' ? receta.id : receta
     const esFav = favoritos.has(recetaId)
     if (esFav) {
       await supabase.from('favoritos').delete()
         .eq('usuario_id', usuario.id).eq('receta_id', recetaId)
       setFavoritos(prev => { const next = new Set(prev); next.delete(recetaId); return next })
+      setFavoritosDetalle(prev => prev.filter(r => r.id !== recetaId))
     } else {
       await supabase.from('favoritos').insert({ usuario_id: usuario.id, receta_id: recetaId })
       setFavoritos(prev => new Set([...prev, recetaId]))
+      if (typeof receta === 'object') setFavoritosDetalle(prev => [...prev, receta])
     }
   }
 
@@ -150,7 +157,7 @@ export default function App() {
           onAgregarCompras={agregarACompras}
           onAgregarMenu={agregarAlMenu}
           esFavorito={favoritos.has(recetaSeleccionada.id)}
-          onToggleFavorito={() => toggleFavorito(recetaSeleccionada.id)}
+          onToggleFavorito={() => toggleFavorito(recetaSeleccionada)}
         />
       </div>
     )
@@ -180,6 +187,7 @@ export default function App() {
             usuario={usuario}
             historial={historial}
             favoritos={favoritos}
+            favoritosDetalle={favoritosDetalle}
             onVerReceta={verReceta}
             onLogout={handleLogout}
           />
