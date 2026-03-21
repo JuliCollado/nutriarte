@@ -97,9 +97,14 @@ export default function Compras({ lista, onLimpiar, onRemoverReceta }) {
               {tachados_count > 0 && ` · ${tachados_count} listo${tachados_count !== 1 ? 's' : ''}`}
             </p>
           </div>
-          <button className="btn-limpiar-compras" onClick={() => { onLimpiar(); setTachados(new Set()) }}>
-            Limpiar todo
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn-limpiar-compras" onClick={compartir}>
+              📤 Compartir
+            </button>
+            <button className="btn-limpiar-compras" onClick={() => { onLimpiar(); setTachados(new Set()) }}>
+              Limpiar todo
+            </button>
+          </div>
         </div>
 
         {tachados_count > 0 && (

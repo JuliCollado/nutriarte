@@ -154,6 +154,24 @@ export default function Recetas({ onVerReceta }) {
           </div>
 
           <div className="filtros-seccion">
+            <p className="filtros-label">Restricciones</p>
+            <div className="filtros-opciones">
+              <button
+                className={`filtro-opcion ${filtros.sinTacc ? 'active' : ''}`}
+                onClick={() => setFiltros(f => ({ ...f, sinTacc: !f.sinTacc }))}
+              >
+                🌾 Sin TACC
+              </button>
+              <button
+                className={`filtro-opcion ${filtros.vegano ? 'active' : ''}`}
+                onClick={() => setFiltros(f => ({ ...f, vegano: !f.vegano }))}
+              >
+                🌱 Vegano
+              </button>
+            </div>
+          </div>
+
+          <div className="filtros-seccion">
             <p className="filtros-label">Tiempo máximo</p>
             <div className="filtros-opciones">
               {[15, 30, 45, 60].map(t => (

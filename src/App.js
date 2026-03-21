@@ -113,6 +113,7 @@ export default function App() {
 
   const removerReceta = (recetaNombre) => {
     setListaCompras(prev => prev.filter(i => i.origen !== recetaNombre))
+    setMenuRecetas(prev => prev.filter(r => r.nombre !== recetaNombre))
   }
 
   const agregarAlMenu = (receta) => {
@@ -120,7 +121,9 @@ export default function App() {
   }
 
   const removerDelMenu = (recetaId) => {
+    const receta = menuRecetas.find(r => r.id === recetaId)
     setMenuRecetas(prev => prev.filter(r => r.id !== recetaId))
+    if (receta) setListaCompras(prev => prev.filter(i => i.origen !== receta.nombre))
   }
 
   const verReceta = (receta) => setRecetaSeleccionada(receta)
