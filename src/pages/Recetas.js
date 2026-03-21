@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import './Recetas.css'
 
@@ -31,6 +31,29 @@ export default function Recetas({ onVerReceta }) {
     tiempoMax: null
   })
   const [mostrarFiltros, setMostrarFiltros] = useState(false)
+  const filtrosPanelRef = useRef(null)
+  const filtroBtnRef = useRef(null)
+
+  // Cerrar filtros al tocar fuera
+  useEffect(() => {
+    const handleClickFuera = (e) => {
+      if (
+        mostrarFiltros &&
+        filtrosPanelRef.current &&
+        !filtrosPanelRef.current.contains(e.target) &&
+        filtroBtnRef.current &&
+        !filtroBtnRef.current.contains(e.target)
+      ) {
+        setMostrarFiltros(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickFuera)
+    document.addEventListener('touchstart', handleClickFuera)
+    return () => {
+      document.removeEventListener('mousedown', handleClickFuera)
+      document.removeEventListener('touchstart', handleClickFuera)
+    }
+  }, [mostrarFiltros])
 
   useEffect(() => {
     cargarRecetas()
@@ -90,7 +113,8 @@ export default function Recetas({ onVerReceta }) {
             {busqueda && <button className="busqueda-clear" onClick={() => setBusqueda('')}>✕</button>}
           </div>
           <button
-            className={`btn-filtro ${mostrarFiltros || filtrosActivos ? 'activo' : ''}`}
+            ref={filtroBtnRef}
+          className={`btn-filtro ${mostrarFiltros || filtrosActivos ? 'activo' : ''}`}
             onClick={() => setMostrarFiltros(!mostrarFiltros)}
           >
             <span>⚡</span>
@@ -120,9 +144,51 @@ export default function Recetas({ onVerReceta }) {
         </div>
       </div>
 
+      {/* TAGS DE FILTROS ACTIVOS */}
+      {filtrosActivos && !mostrarFiltros && (
+        <div className="filtros-activos-row">
+          {filtros.tipo && (
+            <span className="filtro-tag">
+              {EMOJIS_TIPO[filtros.tipo]} {TIPO_LABELS[filtros.tipo]}
+              <button onClick={() => setFiltros(f => ({ ...f, tipo: null }))}>✕</button>
+            </span>
+          )}
+          {filtros.dulzor && (
+            <span className="filtro-tag">
+              {filtros.dulzor === 'dulce' ? '🍯' : filtros.dulzor === 'salado' ? '🧂' : ''} {filtros.dulzor.charAt(0).toUpperCase() + filtros.dulzor.slice(1)}
+              <button onClick={() => setFiltros(f => ({ ...f, dulzor: null }))}>✕</button>
+            </span>
+          )}
+          {filtros.tiempoMax && (
+            <span className="filtro-tag">
+              ⏱ {filtros.tiempoMax} min
+              <button onClick={() => setFiltros(f => ({ ...f, tiempoMax: null }))}>✕</button>
+            </span>
+          )}
+          {filtros.sinTacc && (
+            <span className="filtro-tag">
+              🌾 Sin TACC
+              <button onClick={() => setFiltros(f => ({ ...f, sinTacc: false }))}>✕</button>
+            </span>
+          )}
+          {filtros.vegano && (
+            <span className="filtro-tag">
+              🌱 Vegano
+              <button onClick={() => setFiltros(f => ({ ...f, vegano: false }))}>✕</button>
+            </span>
+          )}
+          {filtros.sinRemojo && (
+            <span className="filtro-tag">
+              ⚡ Sin remojo
+              <button onClick={() => setFiltros(f => ({ ...f, sinRemojo: false }))}>✕</button>
+            </span>
+          )}
+        </div>
+      )}
+
       {/* PANEL FILTROS AVANZADOS */}
       {mostrarFiltros && (
-        <div className="filtros-panel fade-up">
+        <div className="filtros-panel fade-up" ref={filtrosPanelRef}>
           <div className="filtros-seccion">
             <p className="filtros-label">Tipo de comida</p>
             <div className="filtros-opciones">
